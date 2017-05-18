@@ -11,7 +11,7 @@
                     <% msg = msgs[i]; %>
                     <% console.log(msg); %>
                     <div class="row message-bubble">
-                        <p class="text-muted"><%= msg.name %></p>
+                        <p class="text-muted" ><%= msg.name %><span style="float:right;"><%= msg.time %></span></p>
                         <span><%= msg.message %></span>
                     </div>
                     <hr>                
@@ -33,6 +33,3 @@
     </div>
 </div>
 <% include partials/footer %>
-
-
-    
