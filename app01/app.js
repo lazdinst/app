@@ -1,5 +1,6 @@
 //Initilize Packages
 var bodyParser  = require('body-parser'),
+    moment      = require('moment'),
     mongoose    = require('mongoose'),
     passport    = require('passport'),
     LocalStrategy = require('passport-local'),
@@ -31,37 +32,15 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 // Mongoose Schema
-var dataSchema = new mongoose.Schema({
+var msgSchema = new mongoose.Schema({
     name: String,
-    image: String,
-    description: String,
-    opendate: String,
-    closedate: String,
-    zipcode: String
+    message: String
 });
 
-var Microbrew = mongoose.model("Microbrew", dataSchema);
-
-// Create Campground and push to database
-// Microbrew.create({
-//     name: "Kursi Alus",
-//     image: "https://d13yacurqjgara.cloudfront.net/users/42885/screenshots/1803275/lacplesis_gifts_2014-02.png",
-//     description: "This is a delicious beer."
-    
-//     }, function(err, brew){
-//         if(err){
-//             console.log(err);
-//         }
-//         else{
-//             console.log("New brew create")    
-//             console.log(brew);
-//         }
-//     });
-
-
+var Chat = mongoose.model("chat", msgSchema);
 
 //============================================================================
-//Restful Routes
+//Campground - Restful Routes
 //============================================================================
 
 //Landing
@@ -69,62 +48,73 @@ app.get('/', function(req, res){
     res.render('landing');
 });
 
-//INDEX ROUTE - Show all campgrounds
-app.get('/brews', isLoggedIn, function(req, res){
-    //Get all camgrounds from DB
-    Microbrew.find({}, function(err, allBrews){
+//=============================================================================
+// START: Chat Restful Routes
+//=============================================================================
+
+//INDEX ROUTE - Show Chat
+app.get('/chat', isLoggedIn, function(req, res){
+    
+    //Get all the Messages "for a campground"
+    //Each Campground will become a channel
+    //Need to think about the logic of having a user in a channel or many
+    //channels. Should I allow the option to post to more than 1 channel?
+    
+    Chat.find({}, function(err, allMsgs){
         if(err){
             console.log(err);
         }
         else{
-            res.render('index', {brews: allBrews});
+            res.render('chat', {msgs: allMsgs});
         }
     });
     // res.render('campgrounds', {campgrounds: campgrounds});
 });
 
-//CREATE ROUTE - Add new campground to DB
-app.post('/brews', function(req, res){
-    var name = req.body.name;
-    var image = req.body.image;
-    var desc = req.body.description;
-    var newBrew = {name: name, image: image, description: desc};
-
-    //campgrounds.push(newCampground); OLD LINE for Hardcoded campgrounds
+//CREATE ROUTE - Add new Message to DB
+app.post('/chat', function(req, res){
+    //var name = req.body.name;
+    console.log(req.body.username);
+    var name = req.body.username;
+    var time = "hello";
+    var message = req.body.message;
+    var newMsg = {name: req.user.username, message: message};
     
-    //Create a new Campground and save to DB
-    Microbrew.create(newBrew, function(err, newlyCreated){
+    //Create a new message and save to DB
+    Chat.create(newMsg, function(err, newlyCreated){
         if(err){
             console.log(err);
         }
         else{
-            res.redirect('/brews');
+            console.log(newMsg);
+            res.redirect('/chat');
         }
     });
-    
-    //get data from form and add to camp grounds array
-    // redirect abck to the camp grounds page
 });
 
-//NEW - Show form to Create new Campground
-app.get('/brews/new', function(req, res){
-    res.render('new');
-});
+// //NEW - Show form to Create new Campground
+// app.get('/chat/new', function(req, res){
+//     res.render('newmsg');
+// });
 
 //SHOW ROUTE - Shows info about one campground
-app.get("/brews/:id", function(req, res){
+app.get("/chat/:id", function(req, res){
     //find the campgroun with provided ID
     //render show template with that campground
-    Microbrew.findById(req.params.id, function(err, foundBrew){
+    Chat.findById(req.params.id, function(err, foundMsg){
         if(err){
             console.log(err);
         }
         else{
             //render show template with that campground
-            res.render("show",  {brew: foundBrew});
+            res.render("msgshow",  {msg: foundMsg});
         }
     });
 });
+
+//=============================================================================
+// END: Chat Restful Routes
+//=============================================================================
 
 
 //=============================================================================
@@ -145,7 +135,7 @@ app.get("/brews/:id", function(req, res){
               return res.render('register');
           }
           passport.authenticate('local')(req, res, function(){
-            res.redirect('/brews');
+            res.redirect('/chat');
           });
         });
     });
@@ -160,7 +150,7 @@ app.get("/brews/:id", function(req, res){
     
     //Login Logic
     app.post('/login', passport.authenticate('local', {
-        successRedirect: '/brews',
+        successRedirect: '/chat',
         failureRedirect: '/login'
     }), function(req, res){
     });

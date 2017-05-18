@@ -1,0 +1,38 @@
+<% include partials/header %>
+
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default">
+          <div class="panel-heading">Channel Title</div>
+          <div class="panel-body">
+            <div class="container"style="padding-top: 10px; overflow: auto; height: 50vh;">
+                <% console.log(msgs.length) %>
+                <% for(var i = msgs.length - 1; i > -1; i--){ %>
+                    <% msg = msgs[i]; %>
+                    <% console.log(msg); %>
+                    <div class="row message-bubble">
+                        <p class="text-muted"><%= msg.name %></p>
+                        <span><%= msg.message %></span>
+                    </div>
+                    <hr>                
+                <% } %>
+            </div>
+            <div class="panel-footer">
+                 <div class="input-group">
+                    <form action="/chat" method="POST">
+                        <div class='form-group'>
+                            <input class='form-control' type="text" name="message" placeholder="message" required>
+                            <button class="btn btn-default">Submit</button>
+                        </div>
+                    </form>
+                    <a href="/">Go back</a>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+<% include partials/footer %>
+
+
+    
