@@ -34,6 +34,7 @@ passport.deserializeUser(User.deserializeUser());
 // Mongoose Schema
 var msgSchema = new mongoose.Schema({
     name: String,
+    time: String,
     message: String
 });
 
@@ -76,9 +77,9 @@ app.post('/chat', function(req, res){
     //var name = req.body.name;
     console.log(req.body.username);
     var name = req.body.username;
-    var time = "hello";
+    var time = moment().format('LT');
     var message = req.body.message;
-    var newMsg = {name: req.user.username, message: message};
+    var newMsg = {name: req.user.username, time: time, message: message};
     
     //Create a new message and save to DB
     Chat.create(newMsg, function(err, newlyCreated){
